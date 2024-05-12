@@ -8,6 +8,7 @@ extends CharacterBody3D
 @export var coyote_time : float = 0.15
 @export var acceleration : float = 7.0
 @export var deceleration : float = 12.0
+@export var change_direction_strength : float = 4.0
 
 @export_category("Air Movement")
 @export var air_control : float = 0.5
@@ -56,6 +57,13 @@ func _physics_process(delta):
 	
 	if dir:
 		var change = acceleration if is_on_floor() else acceleration * air_control
+		var similar : float = clamp(dir.dot(velocity), -1.0, 1.0)
+		
+		if similar < 0.5:
+			var multiplier : float = ((1.0 + similar) / 2.0) + 1.0
+			change *= multiplier * change_direction_strength
+			
+		
 		desired_velocity = desired_velocity.move_toward(dir * target_speed, delta * change)
 	else:
 		var change = deceleration if is_on_floor() else air_drag
